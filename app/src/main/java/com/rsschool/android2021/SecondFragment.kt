@@ -1,6 +1,7 @@
 package com.rsschool.android2021
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -29,16 +30,23 @@ class SecondFragment : Fragment() {
         val min = arguments?.getInt(MIN_VALUE_KEY) ?: 0
         val max = arguments?.getInt(MAX_VALUE_KEY) ?: 0
 
-        result?.text = generate(min, max).toString()
+       result?.text = generate(min, max).toString()
 
         backButton?.setOnClickListener {
             // TODO: implement back
+            val fragment = FirstFragment()
+            val args = Bundle()
+            args.putInt(PREVIOUS_RESULT_KEY, Integer.parseInt(result?.text.toString()))
+            fragment.arguments = args
+            var fr = parentFragmentManager.beginTransaction()
+            fr?.replace(R.id.container, fragment)
+            fr?.commit()
         }
     }
 
     private fun generate(min: Int, max: Int): Int {
         // TODO: generate random number
-        return 0
+        return (min..max).random()
     }
 
     companion object {
@@ -47,13 +55,15 @@ class SecondFragment : Fragment() {
         fun newInstance(min: Int, max: Int): SecondFragment {
             val fragment = SecondFragment()
             val args = Bundle()
-
+            args.putInt(MIN_VALUE_KEY, min);
+            args.putInt(MAX_VALUE_KEY, max);
             // TODO: implement adding arguments
-
+fragment.arguments = args
             return fragment
         }
 
         private const val MIN_VALUE_KEY = "MIN_VALUE"
         private const val MAX_VALUE_KEY = "MAX_VALUE"
+        private const val PREVIOUS_RESULT_KEY = "PREVIOUS_RESULT"
     }
 }
