@@ -1,5 +1,6 @@
 package com.rsschool.android2021
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -10,6 +11,7 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import java.lang.NumberFormatException
 import kotlin.math.max
 
 class FirstFragment : Fragment() {
@@ -18,6 +20,13 @@ class FirstFragment : Fragment() {
     private var previousResult: TextView? = null
     private var minEditText: EditText? = null
     private var maxEditText: EditText? = null
+
+    private var onFirstFragmentListener: OnFirstFragmentListener? = null
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        onFirstFragmentListener = context as OnFirstFragmentListener
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -41,29 +50,22 @@ class FirstFragment : Fragment() {
         maxEditText = view.findViewById(R.id.max_value)
         generateButton?.setOnClickListener {
             // TODO: send min and max to the SecondFragment
-            if ((minEditText?.text?.isNotEmpty()
-                    ?: 0) as Boolean && (maxEditText?.text?.isNotEmpty() ?: 0) as Boolean
-            ) {
 
-                val min: Int = Integer.parseInt(minEditText?.text.toString())
-                val max = Integer.parseInt(maxEditText?.text.toString())
-if (min<=max) {
-    val fragment = SecondFragment()
-    val args = Bundle()
-    args.putInt(MIN_VALUE_KEY, min)
-    args.putInt(MAX_VALUE_KEY, max)
-    fragment.arguments = args
-    var fr = parentFragmentManager.beginTransaction()
-    fr?.replace(R.id.container, fragment)
-    fr?.commit()
-}
-else {
-   Toast.makeText(requireContext(), "Wrong numbers", Toast.LENGTH_LONG)
-}
-
-            } else {
-                Toast.makeText(requireContext(), "Empty fields", Toast.LENGTH_LONG)
+            try {
+                val min = minEditText?.text.toString().toInt()
+                val max = maxEditText?.text.toString().toInt()
+                if (min<max&& max>0&&min>=0)
+                    onFirstFragmentListener?.onFirstFragmentListener(min, max)
+                else
+                {
+                    Toast.makeText(context, "Check your numbers", Toast.LENGTH_LONG).show()
+                }
             }
+            catch (e:NumberFormatException)
+            {
+                Toast.makeText(context, "Check empty fields", Toast.LENGTH_LONG).show()
+            }
+
         }
     }
 
@@ -78,8 +80,10 @@ else {
             return fragment
         }
 
+        interface OnFirstFragmentListener {
+            fun onFirstFragmentListener(min: Int, max: Int)
+        }
+
         private const val PREVIOUS_RESULT_KEY = "PREVIOUS_RESULT"
-        private const val MIN_VALUE_KEY = "MIN_VALUE"
-        private const val MAX_VALUE_KEY = "MAX_VALUE"
     }
 }

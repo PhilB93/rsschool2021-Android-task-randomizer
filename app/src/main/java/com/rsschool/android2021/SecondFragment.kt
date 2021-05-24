@@ -1,5 +1,6 @@
 package com.rsschool.android2021
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -7,12 +8,20 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
 
 class SecondFragment : Fragment() {
 
     private var backButton: Button? = null
     private var result: TextView? = null
+
+    private var onSecondFragmentListener: OnSecondFragmentListener? = null
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        onSecondFragmentListener = context as OnSecondFragmentListener
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -30,22 +39,22 @@ class SecondFragment : Fragment() {
         val min = arguments?.getInt(MIN_VALUE_KEY) ?: 0
         val max = arguments?.getInt(MAX_VALUE_KEY) ?: 0
 
-       result?.text = generate(min, max).toString()
+        result?.text = generate(min, max).toString()
 
         backButton?.setOnClickListener {
-            // TODO: implement back
-            val fragment = FirstFragment()
-            val args = Bundle()
-            args.putInt(PREVIOUS_RESULT_KEY, Integer.parseInt(result?.text.toString()))
-            fragment.arguments = args
-            var fr = parentFragmentManager.beginTransaction()
-            fr?.replace(R.id.container, fragment)
-            fr?.commit()
+            toFirstFragment()
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+            toFirstFragment()
         }
     }
 
+    private fun toFirstFragment() {
+        val previousNumber = result?.text.toString().toInt()
+        onSecondFragmentListener?.onSecondFragmentListener(previousNumber)
+    }
+
     private fun generate(min: Int, max: Int): Int {
-        // TODO: generate random number
         return (min..max).random()
     }
 
@@ -57,13 +66,16 @@ class SecondFragment : Fragment() {
             val args = Bundle()
             args.putInt(MIN_VALUE_KEY, min);
             args.putInt(MAX_VALUE_KEY, max);
-            // TODO: implement adding arguments
-fragment.arguments = args
+            fragment.arguments = args
             return fragment
+        }
+
+        interface OnSecondFragmentListener {
+            fun onSecondFragmentListener(result: Int)
         }
 
         private const val MIN_VALUE_KEY = "MIN_VALUE"
         private const val MAX_VALUE_KEY = "MAX_VALUE"
-        private const val PREVIOUS_RESULT_KEY = "PREVIOUS_RESULT"
+
     }
 }

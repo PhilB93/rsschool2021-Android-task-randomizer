@@ -5,9 +5,10 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements FirstFragment.Companion.OnFirstFragmentListener, SecondFragment.Companion.OnSecondFragmentListener {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -21,14 +22,24 @@ public class MainActivity extends AppCompatActivity {
         final FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.container, firstFragment);
         transaction.commit();
-        // TODO: invoke function which apply changes of the transaction
     }
 
     private void openSecondFragment(int min, int max) {
-        // TODO: implement it
         final Fragment secondFragment = SecondFragment.newInstance(min, max);
         final FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.container, secondFragment);
         transaction.commit();
     }
+
+    @Override
+    public void onFirstFragmentListener(int min, int max) {
+        openSecondFragment(min, max);
+    }
+
+    @Override
+    public void onSecondFragmentListener(int result) {
+        openFirstFragment(result);
+    }
+
+
 }
